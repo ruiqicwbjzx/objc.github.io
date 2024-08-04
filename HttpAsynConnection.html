@@ -1,0 +1,145 @@
+                hook HttpAsynConnection
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objective-C Hook Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea, input[type="text"] {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 10px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Objective-C Hook Code Generator</h1>
+    
+    <h2>Select Input Method</h2>
+    <label>
+        <input type="radio" name="inputMethod" value="dictionary" checked> Objective-C Dictionary Format
+    </label><br>
+    <label>
+        <input type="radio" name="inputMethod" value="json"> JSON Format
+    </label>
+
+    <h2>Input Replacement Data</h2>
+    <textarea id="inputData" placeholder='Example for Dictionary: @{ @"key": @"value", @"anotherKey": @1 } or JSON: {"rules":[{"matchValue": "key", "value": "newValue"}]}'></textarea>
+    
+    <button id="generateButton">Generate Objective-C Code</button>
+
+    <h2>Generated Objective-C Code</h2>
+    <pre id="objcOutput"></pre>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', function() {
+            const inputMethod = document.querySelector('input[name="inputMethod"]:checked').value;
+            const inputData = document.getElementById('inputData').value.trim();
+
+            // Check if input data is empty
+            if (!inputData) {
+                document.getElementById('objcOutput').textContent = 'Please enter valid data.';
+                return;
+            }
+
+            let objcCode = '';
+            if (inputMethod === 'dictionary') {
+                const replacementData = inputData;
+
+                objcCode = `
+#import <Foundation/Foundation.h>
+
+%hook HttpAsynConnection
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    NSURLRequest *originalRequest = [connection originalRequest];
+    NSString *urlString = [[originalRequest URL] absoluteString];
+    
+    if ([urlString containsString:@"string"]) {
+        NSDictionary *dict = ${replacementData};
+
+        NSError *error = nil;
+        NSData *modifiedData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
+        if (!error) {
+            %orig(connection, modifiedData);
+        } else {
+            %orig(connection, data);
+        }
+    } else {
+        %orig(connection, data);
+    }
+}
+
+%end
+                `.trim();
+
+            } else if (inputMethod === 'json') {
+                let replacementsString;
+                try {
+                    const inputJson = JSON.parse(inputData);
+                    const rules = inputJson.rules;
+
+                    if (!Array.isArray(rules)) {
+                        throw new Error('Input must contain a "rules" array.');
+                    }
+
+                    const replacements = rules.map(item => {
+                        if (item.matchValue && item.value) {
+                            return `@"${item.matchValue}" : @"${item.value}"`;
+                        } else {
+                            throw new Error('Each rule must contain "matchValue" and "value" properties.');
+                        }
+                    }).join(',\n                ');
+
+                    replacementsString = `NSDictionary<NSString *, NSString *> *replacements = @{\n                ${replacements}\n            };`;
+                } catch (error) {
+                    document.getElementById('objcOutput').textContent = `Error: ${error.message}`;
+                    return;
+                }
+
+                objcCode = `
+#import <Foundation/Foundation.h>
+
+%hook HttpAsynConnection
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    NSURLRequest *originalRequest = [connection originalRequest];
+    NSString *urlString = [[originalRequest URL] absoluteString];
+    
+    if ([urlString containsString:@"string"]) {
+        ${replacementsString}
+
+        NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+        for (NSString *key in replacements) {
+            responseString = [responseString stringByReplacingOccurrencesOfString:key withString:replacements[key]];
+        }
+
+        NSData *modifiedData = [responseString dataUsingEncoding:NSUTF8StringEncoding];
+       
+        %orig(connection, modifiedData);
+    } else {
+        %orig(connection, data);
+    }
+}
+
+%end
+                `.trim();
+            }
+
+            document.getElementById('objcOutput').textContent = objcCode;
+        });
+    </script>
+</body>
+</html>
