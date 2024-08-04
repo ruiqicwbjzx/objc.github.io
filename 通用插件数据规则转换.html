@@ -1,0 +1,116 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to Objective-C Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ccc;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON to Objective-C Generator</h1>
+    
+    <h2>Select JSON Format</h2>
+    <select id="jsonFormat">
+        <option value="tennis">网球 JSON 格式</option>
+        <option value="spider">蜘蛛 JSON 格式</option>
+    </select>
+
+    <h2>Input JSON Data</h2>
+    <textarea id="jsonInput"></textarea>
+    <button id="generateButton">Generate Objective-C Code</button>
+    
+    <h2>Generated Objective-C Code</h2>
+    <pre id="objcOutput"></pre>
+
+    <script>
+        document.getElementById('generateButton').addEventListener('click', function() {
+            const jsonInput = document.getElementById('jsonInput').value;
+            const jsonFormat = document.getElementById('jsonFormat').value;
+
+            try {
+                const data = JSON.parse(jsonInput);
+                const patterns = [];
+                const replacements = [];
+
+                // 根据所选格式处理 JSON 数据
+                if (jsonFormat === 'tennis') {
+                    // 处理网球格式
+                    if (data.rules) {
+                        data.rules.forEach(rule => {
+                            patterns.push(rule.matchValue);
+                            replacements.push(rule.value);
+                        });
+                    }
+                } else if (jsonFormat === 'spider') {
+                    // 处理蜘蛛格式
+                    if (data.pathes) {
+                        data.pathes.forEach(path => {
+                            path.rules.forEach(rule => {
+                                patterns.push(rule.key);
+                                replacements.push(rule.value);
+                            });
+                        });
+                    }
+                }
+
+                const objcCode = `
+#import <UIKit/UIKit.h>
+#import <objc/runtime.h>
+#import <Foundation/Foundation.h>
+
+%hook NSJSONSerialization
+
++ (id)JSONObjectWithData:(NSData *)data options:(NSJSONReadingOptions)opt error:(NSError **)error {
+    // Convert NSData to NSString
+    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    
+    if (jsonString) {
+        // 定义模式和替换
+        NSArray *patterns = @[
+            ${patterns.map(pattern => `"${pattern}"`).join(', ')}
+        ];
+
+        NSArray *replacements = @[
+            ${replacements.map(replacement => `"${replacement}"`).join(', ')}
+        ];
+
+        // 在 JSON 字符串中替换模式
+        for (NSInteger i = 0; i < patterns.count; i++) {
+            jsonString = [jsonString stringByReplacingOccurrencesOfString:patterns[i] withString:replacements[i] options:NSRegularExpressionSearch range:NSMakeRange(0, jsonString.length)];
+        }
+        
+        // 从修改后的 JSON 字符串创建 NSData
+        data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    }
+
+    // 调用原始方法并返回结果
+    return %orig(data, opt, error);
+}}
+
+%end
+                `.trim();
+
+                document.getElementById('objcOutput').textContent = objcCode;
+            } catch (e) {
+                document.getElementById('objcOutput').textContent = 'Error parsing JSON: ' + e.message;
+            }
+        });
+    </script>
+</body>
+</html>
