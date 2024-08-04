@@ -1,4 +1,4 @@
-                hook HttpAsynConnection
+%hook HttpAsynConnection
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,7 +12,6 @@
         }
         textarea, input[type="text"] {
             width: 100%;
-            height: 150px;
             margin-bottom: 10px;
         }
         pre {
@@ -36,7 +35,10 @@
 
     <h2>Input Replacement Data</h2>
     <textarea id="inputData" placeholder='Example for Dictionary: @{ @"key": @"value", @"anotherKey": @1 } or JSON: {"rules":[{"matchValue": "key", "value": "newValue"}]}'></textarea>
-    
+
+    <h2>Input URL Path to Match</h2>
+    <input type="text" id="urlPath" placeholder="Example: '/api/v1/resource'">
+
     <button id="generateButton">Generate Objective-C Code</button>
 
     <h2>Generated Objective-C Code</h2>
@@ -46,10 +48,11 @@
         document.getElementById('generateButton').addEventListener('click', function() {
             const inputMethod = document.querySelector('input[name="inputMethod"]:checked').value;
             const inputData = document.getElementById('inputData').value.trim();
+            const urlPath = document.getElementById('urlPath').value.trim();
 
-            // Check if input data is empty
-            if (!inputData) {
-                document.getElementById('objcOutput').textContent = 'Please enter valid data.';
+            // Check if input data or URL path is empty
+            if (!inputData || !urlPath) {
+                document.getElementById('objcOutput').textContent = 'Please enter valid data and a URL path.';
                 return;
             }
 
@@ -66,7 +69,7 @@
     NSURLRequest *originalRequest = [connection originalRequest];
     NSString *urlString = [[originalRequest URL] absoluteString];
     
-    if ([urlString containsString:@"string"]) {
+    if ([urlString containsString:@"${urlPath}"]) {
         NSDictionary *dict = ${replacementData};
 
         NSError *error = nil;
@@ -117,7 +120,7 @@
     NSURLRequest *originalRequest = [connection originalRequest];
     NSString *urlString = [[originalRequest URL] absoluteString];
     
-    if ([urlString containsString:@"string"]) {
+    if ([urlString containsString:@"${urlPath}"]) {
         ${replacementsString}
 
         NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
