@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,15 +59,14 @@
 
 %hook NSURLSession
 - (id)dataTaskWithRequest:(NSMutableURLRequest *)request completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
-void (^customCompletion)(NSData *data, NSURLResponse *response, NSError *error) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-if (([request.URL.absoluteString containsString:@"subscribers"] || [request.URL.absoluteString containsString:@"receipt"]) && (![request.URL.absoluteString containsString:@"offerings"])) {
-NSDictionary *dict = @${userInput};
-
-data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
-}
-completionHandler(data, response, error);
-};
-return %orig(request, customCompletion);
+    void (^customCompletion)(NSData *data, NSURLResponse *response, NSError *error) = ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (([request.URL.absoluteString containsString:@"subscribers"] || [request.URL.absoluteString containsString:@"receipt"]) && (![request.URL.absoluteString containsString:@"offerings"])) {
+            NSDictionary *dict = @${userInput};
+            data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
+        }
+        completionHandler(data, response, error);
+    };
+    return %orig(request, customCompletion);
 }
 %end
             `,
@@ -75,13 +75,11 @@ return %orig(request, customCompletion);
 
 %hook AFURLSessionManager
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
-if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
-NSDictionary *dict = "User Code HERE"
-
-
-data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
-}
-%orig(session, task, data);
+    if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
+        NSDictionary *dict = @${userInput};
+        data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
+    }
+    %orig(session, task, data);
 }
 %end
             `,
@@ -90,41 +88,29 @@ data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
 
 %hook SessionDelegate
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
-if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
-NSDictionary *dict = "User Code HERE"
-
-
-data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
-}
-%orig(session, task, data);
+    if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
+        NSDictionary *dict = @${userInput};
+        data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
+    }
+    %orig(session, task, data);
 }
 %end
 
 %ctor {
-%init(SessionDelegate = objc_getClass("Alamofire.SessionDelegate"));
+    %init(SessionDelegate = objc_getClass("Alamofire.SessionDelegate"));
 }
             `,
             code4: `
-#import  <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 
 %hook HttpAsynConnection
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-NSURLRequest *originalRequest = [connection originalRequest];
-NSString *urlString = [[originalRequest URL] absoluteString];
-if ([urlString containsString:@"${containsStringOne}"]) {
-NSDictionary *dict = "User Code HERE"
-
-
-NSError *error = nil;
-NSData *modifiedData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
-if (!error) {
-%orig(connection, modifiedData);
-} else {
-%orig(connection, data);
-}
-} else {
-%orig(connection, data);
-}
+    NSURLRequest *originalRequest = [connection originalRequestjavascript
+    if ([originalRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
+        NSDictionary *dict = @${userInput};
+        data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
+    }
+    %orig(connection, data);
 }
 %end
             `
@@ -132,27 +118,29 @@ if (!error) {
 
         function displayCode() {
             const selector = document.getElementById('codeSelector');
-            const display = document.getElementById('codeDisplay');
-            const selectedCode = selector.value;
-            const userInput = document.getElementById('userInput').value.trim();
+            const selectedValue = selector.value;
+            const codeArea = document.getElementById('codeDisplay');
 
-            if (selectedCode === 'code1') {
-                try {
-                    // Validate user input JSON
-                    const parsedInput = JSON.parse(userInput);
-                    const formattedInput = JSON.stringify(parsedInput, null, 4);
-                    display.value = codeTemplates[selectedCode].replace('${userInput}', formattedInput);
-                } catch (e) {
-                    alert('Invalid JSON format.');
-                    display.value = '';
-                }
+            if (selectedValue) {
+                codeArea.value = codeTemplates[selectedValue];
             } else {
-                display.value = codeTemplates[selectedCode];
+                codeArea.value = '';
             }
         }
 
         function updateCode() {
-            displayCode();
+            const userInput = document.getElementById('userInput').value;
+            const selector = document.getElementById('codeSelector');
+            const selectedValue = selector.value;
+            const codeArea = document.getElementById('codeDisplay');
+
+            if (selectedValue) {
+                // Replace ${userInput} in the selected template
+                const updatedCode = codeTemplates[selectedValue].replace(/\${userInput}/g, userInput);
+                codeArea.value = updatedCode;
+            } else {
+                alert('Please select a code template first.');
+            }
         }
     </script>
 </body>
