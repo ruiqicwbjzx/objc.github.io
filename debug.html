@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Navigation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .button {
+            display: block;
+            margin: 10px auto;
+            padding: 15px 25px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button:nth-child(2) {
+            background-color: #28a745;
+        }
+        .button:nth-child(2):hover {
+            background-color: #218838;
+        }
+        .button:nth-child(3) {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .button:nth-child(3):hover {
+            background-color: #e0a800;
+        }
+        .button:nth-child(4) {
+            background-color: #dc3545;
+        }
+        .button:nth-child(4):hover {
+            background-color: #c82333;
+        }
+        .button:nth-child(5) {
+            background-color: #17a2b8;
+        }
+        .button:nth-child(5):hover {
+            background-color: #138496;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Navigate to Different URLs</h1>
+        <a href="https://www.example.com" class="button" target="_blank">Go to Example 1</a>
+        <a href="https://www.example.org" class="button" target="_blank">Go to Example 2</a>
+        <a href="https://www.example.net" class="button" target="_blank">Go to Example 3</a>
+        <a href="https://www.example.edu" class="button" target="_blank">Go to Example 4</a>
+        <a href="https://www.example.io" class="button" target="_blank">Go to Example 5</a>
+    </div>
+</body>
+</html>
