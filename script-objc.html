@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        select, textarea, input {
+        select, textarea, input, button {
             width: 100%;
             margin-bottom: 20px;
         }
@@ -28,7 +28,24 @@
     </select>
     
     <label for="userInput">Enter JSON-like data (for NSURLSession Code):</label>
-    <textarea id="userInput" rows="10" placeholder='{ "success": true, "result": { "vipExpireTime": "2999-09-09 09:09:09", "dataId": "10171807697013995683", "vipGroupInfos": [ { "groupType": "TYPE_ONE", "vipType": "VIP", "autoPay": "NO" } ], "nickname": "https://t.me/py996", "type": "VIP" }, "returnCode": "200", "timeOut": false }'></textarea>
+    <textarea id="userInput" rows="10" placeholder='{
+    "success": true,
+    "result": {
+        "vipExpireTime": "2999-09-09 09:09:09",
+        "dataId": "10171807697013995683",
+        "vipGroupInfos": [
+            {
+                "groupType": "TYPE_ONE",
+                "vipType": "VIP",
+                "autoPay": "NO"
+            }
+        ],
+        "nickname": "https://t.me/py996",
+        "type": "VIP"
+    },
+    "returnCode": "200",
+    "timeOut": false
+}'></textarea>
     
     <button onclick="updateCode()">Update Code</button>
     
@@ -117,10 +134,23 @@ if (!error) {
             const selector = document.getElementById('codeSelector');
             const display = document.getElementById('codeDisplay');
             const selectedCode = selector.value;
-            const userInput = document.getElementById('userInput').value;
-            
+            const userInput = document.getElementById('userInput').value.trim();
+
+            // Handle empty user input case
+            if (userInput === '') {
+                alert('Please enter valid JSON data.');
+                return;
+            }
+
             if (selectedCode === 'code1') {
-                display.value = codeTemplates[selectedCode].replace('${userInput}', JSON.stringify(JSON.parse(userInput), null, 4));
+                try {
+                    // Validate and format the user input
+                    JSON.parse(userInput); // This will throw an error if input is not valid JSON
+                    display.value = codeTemplates[selectedCode].replace('${userInput}', JSON.stringify(JSON.parse(userInput), null, 4));
+                } catch (e) {
+                    alert('Invalid JSON format.');
+                    display.value = '';
+                }
             } else {
                 display.value = codeTemplates[selectedCode];
             }
