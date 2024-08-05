@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Objective-C Code Selector</title>
+    <title>Objective-C Code Template Selector</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        select, textarea {
+        select, textarea, input {
             width: 100%;
             margin-bottom: 20px;
         }
@@ -17,6 +17,7 @@
 </head>
 <body>
     <h1>Objective-C Code Template Selector</h1>
+    
     <label for="codeSelector">Choose a code template:</label>
     <select id="codeSelector" onchange="displayCode()">
         <option value="">Select a template</option>
@@ -25,9 +26,14 @@
         <option value="code3">SessionDelegate Code</option>
         <option value="code4">HttpAsynConnection Code</option>
     </select>
-
+    
+    <label for="userInput">Enter JSON-like data (for NSURLSession Code):</label>
+    <textarea id="userInput" rows="10" placeholder='{ "success": true, "result": { "vipExpireTime": "2999-09-09 09:09:09", "dataId": "10171807697013995683", "vipGroupInfos": [ { "groupType": "TYPE_ONE", "vipType": "VIP", "autoPay": "NO" } ], "nickname": "https://t.me/py996", "type": "VIP" }, "returnCode": "200", "timeOut": false }'></textarea>
+    
+    <button onclick="updateCode()">Update Code</button>
+    
     <textarea id="codeDisplay" rows="20" readonly></textarea>
-
+    
     <script>
         const codeTemplates = {
             code1: `
@@ -37,39 +43,8 @@
 - (id)dataTaskWithRequest:(NSMutableURLRequest *)request completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
 void (^customCompletion)(NSData *data, NSURLResponse *response, NSError *error) = ^(NSData *data, NSURLResponse *response, NSError *error) {
 if (([request.URL.absoluteString containsString:@"subscribers"] || [request.URL.absoluteString containsString:@"receipt"]) && (![request.URL.absoluteString containsString:@"offerings"])) {
-NSDictionary *dict = @{
-    @"request_date": @"2023-08-02T02:21:57Z",
-    @"request_date_ms": @1690942917283,
-    @"subscriber": @{
-        @"entitlements": @{
-            @"${entValue}": @{
-                @"expires_date": @"2099-02-18T07:52:54Z",
-                @"original_purchase_date": @"2020-02-11T07:52:55Z",
-                @"purchase_date": @"2020-02-11T07:52:54Z",
-                @"product_identifier": @"${prodIDValue}"
-            }
-        },
-        @"first_seen": @"2023-07-27T12:47:03Z",
-        @"last_seen": @"2023-08-02T01:57:17Z",
-        @"management_url": NSNull.null,
-        @"non_subscriptions": @{
-        },
-        @"original_app_user_id": @"70B24288-83C4-4035-B001-573285B21AE2",
-        @"original_application_version": @"3",
-        @"original_purchase_date": @"2023-07-26T17:04:14Z",
-        @"other_purchases": @{
-        },
-        @"subscriptions": @{
-            @"${prodIDValue}": @{
-                @"expires_date": @"2099-02-18T07:52:54Z",
-                @"original_purchase_date": @"2020-02-11T07:52:55Z",
-                @"purchase_date": @"2020-02-11T07:52:54Z"
-            }
-        },
-        @"entitlement": @{
-        }
-    }
-};
+NSDictionary *dict = @${userInput};
+
 data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:nil];
 }
 completionHandler(data, response, error);
@@ -142,7 +117,17 @@ if (!error) {
             const selector = document.getElementById('codeSelector');
             const display = document.getElementById('codeDisplay');
             const selectedCode = selector.value;
-            display.value = codeTemplates[selectedCode] || '';
+            const userInput = document.getElementById('userInput').value;
+            
+            if (selectedCode === 'code1') {
+                display.value = codeTemplates[selectedCode].replace('${userInput}', JSON.stringify(JSON.parse(userInput), null, 4));
+            } else {
+                display.value = codeTemplates[selectedCode];
+            }
+        }
+
+        function updateCode() {
+            displayCode();
         }
     </script>
 </body>
