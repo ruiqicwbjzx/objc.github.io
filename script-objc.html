@@ -1,85 +1,37 @@
-var code2 = 
-`#import <Foundation/Foundation.h>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objective-C Code Selector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        select, textarea {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Objective-C Code Template Selector</h1>
+    <label for="codeSelector">Choose a code template:</label>
+    <select id="codeSelector" onchange="displayCode()">
+        <option value="">Select a template</option>
+        <option value="code1">NSURLSession Code</option>
+        <option value="code2">AFURLSessionManager Code</option>
+        <option value="code3">SessionDelegate Code</option>
+        <option value="code4">HttpAsynConnection Code</option>
+    </select>
 
-%hook AFURLSessionManager
-// Generated using DCG by D3WXY
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
-if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
-NSDictionary *dict = "User Code HERE"
+    <textarea id="codeDisplay" rows="20" readonly></textarea>
 
-
-// Generated using DCG by D3WXY
-data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
-}
-// Generated using DCG by D3WXY
-%orig(session, task, data);
-}
-// Generated using DCG by D3WXY
-%end`;
-
-
-
-
-var code3 = 
-`#import <Foundation/Foundation.h>
-
-%hook SessionDelegate
-// Generated using DCG by D3WXY
--(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
-if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
-NSDictionary *dict = "User Code HERE"
-
-
-// Generated using DCG by D3WXY
-data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
-}
-%orig(session, task, data);
-}
-// Generated using DCG by D3WXY
-%end
-
-%ctor {
-%init(SessionDelegate = objc_getClass("Alamofire.SessionDelegate"));
-}`;
-
-
-
-
-
-
-var code4 = 
-`#import  <Foundation/Foundation.h>
-
-%hook HttpAsynConnection
-// Generated using DCG by D3WXY
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-NSURLRequest *originalRequest = [connection originalRequest];
-NSString *urlString = [[originalRequest URL] absoluteString];
-// Generated using DCG by D3WXY
-if ([urlString containsString:@"${containsStringOne}"]) {
-NSDictionary *dict = "User Code HERE"
-
-
-// Generated using DCG by D3WXY
-NSError *error = nil;
-NSData *modifiedData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
-if (!error) {
-%orig(connection, modifiedData);
-} else {
-%orig(connection, data);
-}
-} else {
-%orig(connection, data);
-}
-}
-// Generated using DCG by D3WXY
-%end`;
-
-
-
-
-var code1 = 
-`#import <Foundation/Foundation.h>
+    <script>
+        const codeTemplates = {
+            code1: `
+#import <Foundation/Foundation.h>
 
 %hook NSURLSession
 - (id)dataTaskWithRequest:(NSMutableURLRequest *)request completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
@@ -124,4 +76,74 @@ completionHandler(data, response, error);
 };
 return %orig(request, customCompletion);
 }
-%end`;
+%end
+            `,
+            code2: `
+#import <Foundation/Foundation.h>
+
+%hook AFURLSessionManager
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
+if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
+NSDictionary *dict = "User Code HERE"
+
+
+data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
+}
+%orig(session, task, data);
+}
+%end
+            `,
+            code3: `
+#import <Foundation/Foundation.h>
+
+%hook SessionDelegate
+-(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
+if ([task.currentRequest.URL.absoluteString containsString:@"${containsStringOne}"]) {
+NSDictionary *dict = "User Code HERE"
+
+
+data = [NSJSONSerialization dataWithJSONObject:dict options:0 error:0];
+}
+%orig(session, task, data);
+}
+%end
+
+%ctor {
+%init(SessionDelegate = objc_getClass("Alamofire.SessionDelegate"));
+}
+            `,
+            code4: `
+#import  <Foundation/Foundation.h>
+
+%hook HttpAsynConnection
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+NSURLRequest *originalRequest = [connection originalRequest];
+NSString *urlString = [[originalRequest URL] absoluteString];
+if ([urlString containsString:@"${containsStringOne}"]) {
+NSDictionary *dict = "User Code HERE"
+
+
+NSError *error = nil;
+NSData *modifiedData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
+if (!error) {
+%orig(connection, modifiedData);
+} else {
+%orig(connection, data);
+}
+} else {
+%orig(connection, data);
+}
+}
+%end
+            `
+        };
+
+        function displayCode() {
+            const selector = document.getElementById('codeSelector');
+            const display = document.getElementById('codeDisplay');
+            const selectedCode = selector.value;
+            display.value = codeTemplates[selectedCode] || '';
+        }
+    </script>
+</body>
+</html>
