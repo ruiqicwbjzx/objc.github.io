@@ -136,17 +136,12 @@ if (!error) {
             const selectedCode = selector.value;
             const userInput = document.getElementById('userInput').value.trim();
 
-            // Handle empty user input case
-            if (userInput === '') {
-                alert('Please enter valid JSON data.');
-                return;
-            }
-
             if (selectedCode === 'code1') {
                 try {
-                    // Validate and format the user input
-                    JSON.parse(userInput); // This will throw an error if input is not valid JSON
-                    display.value = codeTemplates[selectedCode].replace('${userInput}', JSON.stringify(JSON.parse(userInput), null, 4));
+                    // Validate user input JSON
+                    const parsedInput = JSON.parse(userInput);
+                    const formattedInput = JSON.stringify(parsedInput, null, 4);
+                    display.value = codeTemplates[selectedCode].replace('${userInput}', formattedInput);
                 } catch (e) {
                     alert('Invalid JSON format.');
                     display.value = '';
