@@ -3,81 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Navigation</title>
+    <title>Button Navigation with Snowfall</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        html, body {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            height: 100%;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            position: relative;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            align-items: flex-start; /* 修改为 flex-start 以允许垂直排列 */
+            flex-direction: column; /* 允许子元素垂直排列 */
         }
         .container {
             text-align: center;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            margin-top: 20px;
         }
         h1 {
             margin-bottom: 20px;
             color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .time {
+            margin-bottom: 30px;
+            font-size: 18px;
+            color: #555;
         }
         .button {
             display: block;
             margin: 10px auto;
-            padding: 15px 25px;
-            font-size: 16px;
-            color: #fff;
-            background-color: #007bff;
+            padding: 15px 30px;
+            font-size: 18px;
+            color: #ffffff;
+            background: linear-gradient(45deg, #007bff, #0056b3);
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             text-decoration: none;
-            transition: background-color 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
         .button:hover {
-            background-color: #0056b3;
+            background: linear-gradient(45deg, #0056b3, #003d7a);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
         }
         .button:nth-child(2) {
-            background-color: #28a745;
+            background: linear-gradient(45deg, #28a745, #1e7e34);
         }
         .button:nth-child(2):hover {
-            background-color: #218838;
+            background: linear-gradient(45deg, #1e7e34, #155d27);
         }
         .button:nth-child(3) {
-            background-color: #ffc107;
+            background: linear-gradient(45deg, #ffc107, #e0a800);
             color: #333;
         }
         .button:nth-child(3):hover {
-            background-color: #e0a800;
+            background: linear-gradient(45deg, #e0a800, #d39e00);
         }
         .button:nth-child(4) {
-            background-color: #dc3545;
+            background: linear-gradient(45deg, #dc3545, #c82333);
         }
         .button:nth-child(4):hover {
-            background-color: #c82333;
+            background: linear-gradient(45deg, #c82333, #ab1e2c);
         }
         .button:nth-child(5) {
-            background-color: #17a2b8;
+            background: linear-gradient(45deg, #17a2b8, #138496);
         }
         .button:nth-child(5):hover {
-            background-color: #138496;
+            background: linear-gradient(45deg, #138496, #0f6c77);
+        }
+        .button:nth-child(6) {
+            background: linear-gradient(45deg, #6f42c1, #5a2d9d);
+        }
+        .button:nth-child(6):hover {
+            background: linear-gradient(45deg, #5a2d9d, #4a1e7d);
+        }
+        .button:nth-child(7) {
+            background: linear-gradient(45deg, #e83e8c, #d63384);
+        }
+        .button:nth-child(7):hover {
+            background: linear-gradient(45deg, #d63384, #c2256c);
+        }
+        .button:nth-child(8) {
+            background: linear-gradient(45deg, #343a40, #23272b);
+        }
+        .button:nth-child(8):hover {
+            background: linear-gradient(45deg, #23272b, #1d2024);
+        }
+        .button:nth-child(9) {
+            background: linear-gradient(45deg, #fd7e14, #e96a14);
+        }
+        .button:nth-child(9):hover {
+            background: linear-gradient(45deg, #e96a14, #c7560c);
+        }
+        .button:nth-child(10) {
+            background: linear-gradient(45deg, #6610f2, #5a0fc1);
+        }
+        .button:nth-child(10):hover {
+            background: linear-gradient(45deg, #5a0fc1, #4a0a98);
+        }
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            width: 10px;
+            height: 10px;
+            background: red; /* Red color for snowflakes */
+            opacity: 0.9;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fall linear;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Navigate to Different URLs</h1>
+        <div class="time" id="currentTime"></div>
         <a href="https://ruiqicwbjzx.github.io/objc.github.io/iTunes-objc.html" class="button" target="_blank">iTunes-objc脚本转换</a>
         <a href="https://ruiqicwbjzx.github.io/objc.github.io/script-objc.html" class="button" target="_blank">script-objc</a>
         <a href="https://ruiqicwbjzx.github.io/objc.github.io/iTunes.html" class="button" target="_blank">Go to iTunes</a>
         <a href="https://ruiqicwbjzx.github.io/objc.github.io/HttpAsynConnection.html" class="button" target="_blank">HttpAsynConnection</a>
         <a href="https://ruiqicwbjzx.github.io/objc.github.io/verifyReceipt.html" class="button" target="_blank">verifyReceipt</a>
+        <a href="https://example.com/another-page" class="button" target="_blank">Another Page</a>
+        <a href="https://example.com/additional-page" class="button" target="_blank">Additional Page</a>
+        <a href="https://example.com/third-page" class="button" target="_blank">Third Page</a>
+        <a href="https://example.com/fourth-page" class="button" target="_blank">Fourth Page</a>
+        <a href="https://example.com/fifth-page" class="button" target="_blank">Fifth Page</a>
     </div>
+
+    <script>
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+            snowflake.style.opacity = Math.random() * 0.5 + 0.5;
+            document.body.appendChild(snowflake);
+
+            snowflake.addEventListener('animationend', () => {
+                document.body.removeChild(snowflake);
+            });
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString(undefined, options);
+        }
+
+        setInterval(createSnowflake, 100);
+        setInterval(updateTime, 1000);
+        updateTime(); // Initial call to set the time immediately on load
+    </script>
 </body>
 </html>
