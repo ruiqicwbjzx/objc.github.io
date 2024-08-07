@@ -1,0 +1,31 @@
+
+#import <Foundation/Foundation.h>
+
+%hook MEIQIA_AFHTTPRequestOperation
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+    NSURLRequest *originalRequest = [connection originalRequest];
+    NSString *urlString = [[originalRequest URL] absoluteString];
+    
+    if ([urlString containsString:@""]) {
+        NSDictionary *dict = @{
+            @{
+    @"magic_tag": @"ss_app_log",
+    @"message": @"success",
+    @"server_time": @1722944119
+}
+        };
+
+        NSError *error = nil;
+        NSData *modifiedData = [NSJSONSerialization dataWithJSONObject:dict options:0 error:&error];
+        if (!error) {
+            %orig(connection, modifiedData);
+        } else {
+            %orig(connection, data);
+        }
+    } else {
+        %orig(connection, data);
+    }
+}
+
+%end
